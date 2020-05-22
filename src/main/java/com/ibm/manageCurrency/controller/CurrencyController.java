@@ -1,7 +1,8 @@
 package com.ibm.manageCurrency.controller;
 
+import java.util.Objects;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,37 +12,42 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ibm.manageCurrency.entity.Conversion;
+import com.ibm.manageCurrency.model.APIResponse;
+import com.ibm.manageCurrency.model.ConversionFactorResponse;
 import com.ibm.manageCurrency.model.ConversionRequest;
-import com.ibm.manageCurrency.repository.ConversionJPARepository;
+import com.ibm.manageCurrency.service.ManageCurrencyService;
 
 @RestController
 @RequestMapping("/conversionFactor")
 public class CurrencyController {
 	
 	@Autowired
-	private ConversionJPARepository repo;
+	private ManageCurrencyService manageCurrencyService;
 	
 	@RequestMapping(method = RequestMethod.POST)
-	public ResponseEntity<?> addConversionFactor(@RequestBody ConversionRequest currency) {
-		System.out.println("currency - > " + currency.toString());
-		repo.save(new Conversion(currency.getCountryCode(), currency.getConversionFactor()));
+	public ResponseEntity<?> addConversionFactor(@RequestBody ConversionRequest request) {
+		System.out.println("ConversionRequest - > " + request.toString());
+		manageCurrencyService.addConversionFactor(request);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
 	@RequestMapping(path = "/{countryCode}", method = RequestMethod.GET)
-	@ResponseBody
-	public ResponseEntity<Double> getConversionFactor(@PathVariable String countryCode) {
+	public @ResponseBody ResponseEntity<APIResponse<ConversionFactorResponse>> getConversionFactor(@PathVariable String countryCode) {
+		APIResponse<ConversionFactorResponse> response = new APIResponse<>();
 		System.out.println("currency - > " + countryCode);
-		Conversion factor = repo.getConversionFactorByCountryCode(countryCode);
-		return new ResponseEntity<>(factor.getConversionFactor(), HttpStatus.OK);
+		ConversionFactorResponse factorResponse = manageCurrencyService.getConversionFactor(countryCode);
+		if(Objects.nonNull(factorResponse)){
+			response.setResponse(factorResponse);
+			response.setStatus(APIResponse.STATUS_SUCCESS);
+		}
+		return ResponseEntity.ok(response);
 	}
 	
 	
 	@RequestMapping(method = RequestMethod.PUT) 
-	public ResponseEntity<?> updateConversionFactor(@RequestBody ConversionRequest conversionRequest) {
-		System.out.println("conversionRequest - > " + conversionRequest.toString());
-		repo.updateConversionFactor(conversionRequest.getConversionFactor(), conversionRequest.getCountryCode());
+	public ResponseEntity<?> updateConversionFactor(@RequestBody ConversionRequest request) {
+		System.out.println("conversionRequest - > " + request.toString());
+		manageCurrencyService.updateConversionFactor(request);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	 

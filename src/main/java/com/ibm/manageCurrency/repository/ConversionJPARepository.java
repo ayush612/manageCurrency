@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ibm.manageCurrency.entity.Conversion;
 
-
 @Component
 @Transactional
 public interface ConversionJPARepository extends JpaRepository<Conversion, Integer> {
