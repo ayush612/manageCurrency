@@ -2,6 +2,7 @@ package com.ibm.manageCurrency.service;
 
 import java.util.Objects;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -15,21 +16,31 @@ public class ManageCurrencyService {
 
 	@Autowired
 	private ConversionJPARepository repo;
-	
-	public void addConversionFactor(ConversionRequest request) {
-		repo.save(new Conversion(request.getCountryCode(), request.getConversionFactor()));
+
+	public Conversion addConversionFactor(ConversionRequest request) {
+		Conversion conversion = null;
+		if (Objects.nonNull(request) && StringUtils.isNotBlank(request.getCountryCode())) {
+			conversion = repo.save(new Conversion(request.getCountryCode(), request.getConversionFactor()));
+		}
+		return conversion;
 	}
-	
+
 	public ConversionFactorResponse getConversionFactor(String countryCode) {
 		ConversionFactorResponse conversionFactorResponse = null;
-		Conversion factor = repo.getConversionFactorByCountryCode(countryCode);
-		if(Objects.nonNull(factor)){
-			conversionFactorResponse = new ConversionFactorResponse(factor.getConversionFactor());
+		if (StringUtils.isNotBlank(countryCode)) {
+			Conversion factor = repo.getConversionFactorByCountryCode(countryCode);
+			if (Objects.nonNull(factor)) {
+				conversionFactorResponse = new ConversionFactorResponse(factor.getConversionFactor());
+			}
 		}
 		return conversionFactorResponse;
 	}
-	
-	public void updateConversionFactor(ConversionRequest request) {
-		repo.updateConversionFactor(request.getConversionFactor(), request.getCountryCode());
+
+	public int updateConversionFactor(ConversionRequest request) {
+		int count = 0;
+		if(StringUtils.isNotBlank(request.getCountryCode())) {
+			count = repo.updateConversionFactor(request.getConversionFactor(), request.getCountryCode());
+		}
+		return count;
 	}
 }

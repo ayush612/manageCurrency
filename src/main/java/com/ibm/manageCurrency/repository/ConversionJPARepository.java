@@ -16,6 +16,6 @@ public interface ConversionJPARepository extends JpaRepository<Conversion, Integ
 	
 	@Modifying(clearAutomatically = true)
 	@Query("update conversion c set c.conversionFactor = :conversionFactor WHERE c.countryCode = :countryCode")
-	void updateConversionFactor(Double conversionFactor, String countryCode);
+	int updateConversionFactor(Double conversionFactor, String countryCode);
 
 }

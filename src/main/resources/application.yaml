@@ -1,6 +1,12 @@
 server:
-  port: 8001
+  port: 0
 spring:
+  sleuth:
+    trace-id128: true
+    sampler:
+      probability: 1.0
+  zipkin:
+    base-url: http://192.168.99.100:9411/
   h2:
     console:
       enabled: true
@@ -36,10 +42,9 @@ eureka:
     serviceUrl:
       defaultZone: ${manageCurrencyms.eureka.url:http://localhost:8761/eureka}
 
-feign:
-  hystrix:
-    enabled: true   
-        
+logging:
+  pattern:
+    level: "[%X{X-B3-TraceId} : %X{X-B3-SpanId}] %-5p [%t] %C{2} - %m%n"
 
 management:
   endpoints:
